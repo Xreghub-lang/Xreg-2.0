@@ -3,8 +3,8 @@ loadstring([==[
 --// Key: XREG-2025
 --// Insert = toggle UI | RMB = aimbot
 
-local KEY = "XREG-2025"
-local KEY_LINK = "https://jnkie.com/flow/b4619717-919b-40f8-9bcc-f68b6857ec00"
+local KEY = "example XREG-123"
+local KEY_LINK = "https://discord.gg/We2qUXFk7"
 
 local Players    = game:GetService("Players")
 local RunService = game:GetService("RunService")
