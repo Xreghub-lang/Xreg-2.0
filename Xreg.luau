@@ -216,7 +216,6 @@ end
 for _,p in ipairs(Players:GetPlayers()) do if p~=LP then watchPlayer(p) end end
 Players.PlayerAdded:Connect(function(p) if p~=LP then watchPlayer(p) end end)
 
--- Anti-AFK
 LP.Idled:Connect(function()
     if CFG.ANTI_AFK then pcall(function() VUser:CaptureController() VUser:ClickButton2(Vector2.new()) end) end
 end)
@@ -296,7 +295,7 @@ RunService.RenderStepped:Connect(function()
                 if not p.Character or (hum and hum.Health<=0) then table.insert(dead,p.Name) end
             end
         end
-        if #dead>0 then specLabel.Text="Spectating:\n"..table.concat(dead,"\n") specLabel.Position=Vector2.new(vp.X-140,90) specLabel.Visible=true
+        if #dead>0 then specLabel.Text="Spectating:\n"..table.concat(dead,"\n") specLabel.Position=Vector2.new(Camera.ViewportSize.X-140,90) specLabel.Visible=true
         else specLabel.Visible=false end
     else specLabel.Visible=false end
 
@@ -354,7 +353,8 @@ RunService.RenderStepped:Connect(function()
             BombESP.label.Position=Vector2.new(sp.X,sp.Y-14) BombESP.label.Text=string.format("◆ BOMB  %.0fm",dist) BombESP.label.Visible=true
             BombESP.tracer.From=sb BombESP.tracer.To=sp BombESP.tracer.Visible=true
         else
-            BombESP.label.Position=Vector2.new(clamp(sp.X,30,vp.X-30),clamp(sp.Y,30,vp.Y-30))
+            local vp2=Camera.ViewportSize
+            BombESP.label.Position=Vector2.new(clamp(sp.X,30,vp2.X-30),clamp(sp.Y,30,vp2.Y-30))
             BombESP.label.Text=string.format("▶ BOMB  %.0fm",dist or 0) BombESP.label.Visible=true BombESP.tracer.Visible=false
         end
     else BombESP.label.Visible=false BombESP.tracer.Visible=false end
@@ -368,7 +368,7 @@ local function makeGui()
     local gui=Instance.new("ScreenGui") gui.Name="XregHub" gui.ResetOnSpawn=false
     gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling gui.Parent=LP.PlayerGui
 
-    -- Key screen
+    -- ── Key screen ───────────────────────────────────────────
     local kf=Instance.new("Frame") kf.Size=UDim2.new(0,340,0,170) kf.Position=UDim2.new(0.5,-170,0.5,-85)
     kf.BackgroundColor3=Color3.fromRGB(14,14,14) kf.BorderSizePixel=0 kf.Parent=gui
     local ka=Instance.new("Frame") ka.Size=UDim2.new(1,0,0,3) ka.BackgroundColor3=Color3.fromRGB(255,220,60) ka.BorderSizePixel=0 ka.Parent=kf
@@ -380,7 +380,7 @@ local function makeGui()
     local kerr=Instance.new("TextLabel") kerr.Position=UDim2.new(0,0,0,112) kerr.Size=UDim2.new(1,0,0,16) kerr.BackgroundTransparency=1 kerr.Text="" kerr.TextSize=12 kerr.TextColor3=Color3.fromRGB(255,80,80) kerr.Font=Enum.Font.Gotham kerr.Parent=kf
     local khint=Instance.new("TextLabel") khint.Position=UDim2.new(0,0,0,136) khint.Size=UDim2.new(1,0,0,14) khint.BackgroundTransparency=1 khint.Text="default key: XREG-2025" khint.TextSize=11 khint.TextColor3=Color3.fromRGB(60,60,60) khint.Font=Enum.Font.Gotham khint.Parent=kf
 
-    -- Main panel
+    -- ── Main panel ───────────────────────────────────────────
     local mf=Instance.new("Frame") mf.Size=UDim2.new(0,430,0,400) mf.Position=UDim2.new(0.5,-215,0.5,-200)
     mf.BackgroundColor3=Color3.fromRGB(14,14,14) mf.BorderSizePixel=0 mf.Active=true mf.Draggable=true mf.Visible=false mf.Parent=gui
     local ma=Instance.new("Frame") ma.Size=UDim2.new(1,0,0,3) ma.BackgroundColor3=Color3.fromRGB(255,220,60) ma.BorderSizePixel=0 ma.Parent=mf
@@ -509,6 +509,50 @@ local function makeGui()
         t.CanvasSize=UDim2.new(0,0,0,y+104)
     end
 
+    -- ── Persistent icon ──────────────────────────────────────
+    local icon=Instance.new("ImageButton")
+    icon.Size=UDim2.new(0,44,0,44)
+    icon.Position=UDim2.new(0,12,0.5,-22)
+    icon.BackgroundColor3=Color3.fromRGB(20,20,20)
+    icon.BorderSizePixel=0
+    icon.AutoButtonColor=false
+    icon.Active=true
+    icon.Draggable=true
+    icon.Parent=gui
+
+    local iconCorner=Instance.new("UICorner")
+    iconCorner.CornerRadius=UDim.new(0,10)
+    iconCorner.Parent=icon
+
+    local iconStripe=Instance.new("Frame")
+    iconStripe.Size=UDim2.new(1,0,0,3)
+    iconStripe.BackgroundColor3=Color3.fromRGB(255,220,60)
+    iconStripe.BorderSizePixel=0
+    iconStripe.Parent=icon
+    local iconStripeCorner=Instance.new("UICorner")
+    iconStripeCorner.CornerRadius=UDim.new(0,10)
+    iconStripeCorner.Parent=iconStripe
+
+    local iconLbl=Instance.new("TextLabel")
+    iconLbl.Size=UDim2.new(1,0,1,0)
+    iconLbl.BackgroundTransparency=1
+    iconLbl.Text="X\nHUB"
+    iconLbl.TextSize=11
+    iconLbl.TextColor3=Color3.fromRGB(255,220,60)
+    iconLbl.Font=Enum.Font.GothamBold
+    iconLbl.Parent=icon
+
+    icon.MouseButton1Click:Connect(function()
+        mf.Visible=not mf.Visible
+    end)
+    icon.MouseEnter:Connect(function()
+        icon.BackgroundColor3=Color3.fromRGB(32,32,32)
+    end)
+    icon.MouseLeave:Connect(function()
+        icon.BackgroundColor3=Color3.fromRGB(20,20,20)
+    end)
+
+    -- ── Key submit / Insert toggle ────────────────────────────
     setTab("ESP")
     ksb.MouseButton1Click:Connect(function()
         if kb.Text==KEY then kf.Visible=false mf.Visible=true else kerr.Text="Invalid key." kb.Text="" end
